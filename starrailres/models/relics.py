@@ -21,6 +21,7 @@ class RelicSetType(Struct):
     id: str
     name: str
     properties: List[List[Property]]
+    desc: List[str]
     icon: str
     guide_overview: List[str]
 
@@ -35,12 +36,12 @@ class AffixType(Struct):
 
 class RelicMainAffixType(Struct):
     id: str
-    affixs: Dict[str, AffixType]
+    affixes: Dict[str, AffixType]
 
 
 class RelicSubAffixType(Struct):
     id: str
-    affixs: Dict[str, AffixType]
+    affixes: Dict[str, AffixType]
 
 
 RelicIndex = Dict[str, RelicType]

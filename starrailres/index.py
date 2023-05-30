@@ -1,6 +1,7 @@
 import math
+from copy import deepcopy
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from .models.characters import (
     CharacterIndex,
@@ -20,6 +21,9 @@ from .models.info import (
     LightConeInfo,
     PathInfo,
     PropertyInfo,
+    RelicBasicInfo,
+    RelicInfo,
+    RelicSetInfo,
     SkillInfo,
     SubAffixInfo,
 )
@@ -77,6 +81,14 @@ class Index:
         self.light_cone_promotions = decode_json(
             folder / "light_cone_promotions.json", LightConePromotionIndex
         )
+        self.relics = decode_json(folder / "relics.json", RelicIndex)
+        self.relic_sets = decode_json(folder / "relic_sets.json", RelicSetIndex)
+        self.relic_main_affixes = decode_json(
+            folder / "relic_main_affixes.json", RelicMainAffixIndex
+        )
+        self.relic_sub_affixes = decode_json(
+            folder / "relic_sub_affixes.json", RelicSubAffixIndex
+        )
         self.paths = decode_json(folder / "paths.json", PathIndex)
         self.elements = decode_json(folder / "elements.json", ElementIndex)
         self.properties = decode_json(folder / "properties.json", PropertyIndex)
@@ -103,51 +115,198 @@ class Index:
         """
         Get character info by character basic info.
         """
-        info = CharacterInfo(basic)
-        if info.id not in self.characters:
+        if basic.id not in self.characters:
             return None
-        info.name = self.characters[info.id].name
-        info.rarity = self.characters[info.id].rarity
-        info.path = self.get_path_info(self.characters[info.id].path)
-        info.element = self.get_element_info(self.characters[info.id].element)
-        skill_levels = self.merge_character_skill_upgrade(
-            [
-                self.get_character_skill_upgrade_from_rank(info.id, info.rank),
-                self.get_character_skill_upgrade_from_skill_tree(
-                    info.id, info.skill_tree_levels
+        info = CharacterInfo(
+            id=basic.id,
+            rank=basic.rank,
+            level=basic.level,
+            promotion=basic.promotion,
+            name=self.characters[basic.id].name,
+            rarity=self.characters[basic.id].rarity,
+            icon=self.characters[basic.id].icon,
+            preview=self.characters[basic.id].preview,
+            portrait=self.characters[basic.id].portrait,
+            path=self.get_path_info(self.characters[basic.id].path),
+            element=self.get_element_info(self.characters[basic.id].element),
+            skills=self.get_character_skill_info(
+                basic.id,
+                self.merge_character_skill_upgrade(
+                    [
+                        self.get_character_skill_upgrade_from_rank(
+                            basic.id, basic.rank
+                        ),
+                        self.get_character_skill_upgrade_from_skill_tree(
+                            basic.id, basic.skill_tree_levels
+                        ),
+                    ]
                 ),
+            ),
+            light_cone=None,
+            relics=[],
+            relic_sets=[],
+            attributes=self.get_character_attribute_from_promotion(
+                basic.id, basic.promotion, basic.level
+            ),
+            additions=[],
+            properties=self.merge_property(
+                [
+                    self.get_character_property_from_skill_tree(
+                        basic.id, basic.skill_tree_levels
+                    )
+                ]
+            ),
+        )
+        # light cone
+        info.light_cone = (
+            self.get_light_cone_info(basic.light_cone) if basic.light_cone else None
+        )
+        # relics
+        relic_infos = (
+            (self.get_relic_info(relic) for relic in basic.relics)
+            if basic.relics
+            else []
+        )
+        info.relics = [
+            relic_info for relic_info in relic_infos if relic_info is not None
+        ]
+        # relic sets
+        info.relic_sets = self.get_relic_sets_info(info.relics) if info.relics else []
+        # attributes
+        info.attributes = self.merge_attribute(
+            [
+                info.attributes,
+                info.light_cone.attributes if info.light_cone else [],
             ]
         )
-        info.skills = self.get_character_skill_info(info.id, skill_levels)
-        info.attributes = self.get_character_attribute_from_promotion(
-            info.id, info.promotion, info.level
+        # properties
+        relic_properties = []
+        for relic in info.relics:
+            if relic.main_affix:
+                relic_properties.append(relic.main_affix)
+            relic_properties += relic.sub_affix
+        for relic_set in info.relic_sets:
+            relic_properties += relic_set.properties
+        info.properties = self.merge_property(
+            [
+                info.properties,
+                info.light_cone.properties if info.light_cone else [],
+                relic_properties,
+            ]
         )
-        info.properties = []
-
+        # additions
+        info.additions = self.calculate_additions(info.attributes, info.properties)
         return info
 
     def get_light_cone_info(self, basic: LightConeBasicInfo) -> Optional[LightConeInfo]:
         """
         Get light cone info by light cone basic info.
         """
-        info = LightConeInfo(basic)
-        if info.id not in self.light_cones:
+        if basic.id not in self.light_cones:
             return None
-        info.name = self.light_cones[info.id].name
-        info.rarity = self.light_cones[info.id].rarity
-        info.path = self.get_path_info(self.light_cones[info.id].path)
-        info.icon = self.light_cones[info.id].icon
-        info.attributes = self.get_light_cone_attribute_from_promotion(
-            info.id, info.promotion, info.level
+        info = LightConeInfo(
+            id=basic.id,
+            rank=basic.rank,
+            level=basic.level,
+            promotion=basic.promotion,
+            name=self.light_cones[basic.id].name,
+            rarity=self.light_cones[basic.id].rarity,
+            path=self.get_path_info(self.light_cones[basic.id].path),
+            icon=self.light_cones[basic.id].icon,
+            preview=self.light_cones[basic.id].preview,
+            portrait=self.light_cones[basic.id].portrait,
+            attributes=self.get_light_cone_attribute_from_promotion(
+                basic.id, basic.promotion, basic.level
+            ),
+            properties=self.merge_property(
+                [self.get_light_cone_property_from_rank(basic.id, basic.rank)]
+            ),
         )
-        info.properties = []
         return info
+
+    def get_relic_info(self, basic: RelicBasicInfo) -> Optional[RelicInfo]:
+        if basic.id not in self.relics:
+            return None
+        info = RelicInfo(
+            id=basic.id,
+            name=self.relics[basic.id].name,
+            set_id=self.relics[basic.id].set_id,
+            set_name=self.relic_sets[self.relics[basic.id].set_id].name,
+            rarity=self.relics[basic.id].rarity,
+            level=basic.level,
+            icon=self.relics[basic.id].icon,
+            main_affix=self.get_relic_main_affix(
+                basic.id, basic.level, basic.main_affix_id
+            ),
+            sub_affix=self.get_relic_sub_affix(basic.id, basic.sub_affix_info),
+        )
+        return info
+
+    def get_relic_sets_info(self, relics: List[RelicInfo]) -> List[RelicSetInfo]:
+        set_num: Dict[str, int] = {}
+        for relic in relics:
+            if relic.set_id not in set_num:
+                set_num[relic.set_id] = 1
+            else:
+                set_num[relic.set_id] += 1
+        relic_sets = []
+        for k, v in set_num.items():
+            if v >= 2:
+                relic_sets.append(
+                    RelicSetInfo(
+                        id=k,
+                        name=self.relic_sets[k].name,
+                        desc=self.relic_sets[k].desc[0],
+                        properties=[
+                            PropertyInfo(
+                                type=i.type,
+                                field=self.properties[i.type].field,
+                                name=self.properties[i.type].name,
+                                icon=self.properties[i.type].icon,
+                                value=i.value,
+                                display=self.value_display_format(
+                                    i.value,
+                                    self.properties[i.type].percent,
+                                ),
+                                percent=self.properties[i.type].percent,
+                            )
+                            for i in self.relic_sets[k].properties[0]
+                        ],
+                    )
+                )
+            if v >= 4:
+                relic_sets.append(
+                    RelicSetInfo(
+                        id=k,
+                        name=self.relic_sets[k].name,
+                        desc=self.relic_sets[k].desc[0],
+                        properties=[
+                            PropertyInfo(
+                                type=i.type,
+                                field=self.properties[i.type].field,
+                                name=self.properties[i.type].name,
+                                icon=self.properties[i.type].icon,
+                                value=i.value,
+                                display=self.value_display_format(
+                                    i.value,
+                                    self.properties[i.type].percent,
+                                ),
+                                percent=self.properties[i.type].percent,
+                            )
+                            for i in self.relic_sets[k].properties[1]
+                        ],
+                    )
+                )
+        return relic_sets
 
     # internal methods
 
     def get_character_skill_info(
         self, id: str, skill_levels: List[LevelInfo]
     ) -> List[SkillInfo]:
+        """
+        Get character skill info by character id and skill levels.
+        """
         if id not in self.characters:
             return []
         skill_info_dict = {}
@@ -155,21 +314,22 @@ class Index:
             if skill_level.id not in self.character_skills:
                 continue
             skill = self.character_skills[skill_level.id]
-            skill_info = SkillInfo()
-            skill_info.id = skill_level.id
-            skill_info.name = skill.name
-            skill_info.level = skill_level.level
-            skill_info.max_level = skill.max_level
-            skill_info.element = self.get_element_info(skill.element)
-            skill_info.type = skill.type
-            skill_info.type_text = skill.type_text
-            skill_info.effect = skill.effect
-            skill_info.effect_text = skill.effect_text
-            skill_info.simple_desc = skill.simple_desc
-            skill_info.desc = self.format_template(
-                skill.desc, skill.params[skill_level.level - 1]
+            skill_info = SkillInfo(
+                id=skill_level.id,
+                name=skill.name,
+                level=skill_level.level,
+                max_level=skill.max_level,
+                element=self.get_element_info(skill.element),
+                type=skill.type,
+                type_text=skill.type_text,
+                effect=skill.effect,
+                effect_text=skill.effect_text,
+                simple_desc=skill.simple_desc,
+                desc=self.format_template(
+                    skill.desc, skill.params[skill_level.level - 1]
+                ),
+                icon=skill.icon,
             )
-            skill_info.icon = skill.icon
             skill_info_dict[skill_level.id] = skill_info
         skill_info_list = []
         for skill_id in self.characters[id].skills:
@@ -177,19 +337,20 @@ class Index:
                 skill_info_list.append(skill_info_dict[skill_id])
             else:
                 skill = self.character_skills[skill_id]
-                skill_info = SkillInfo()
-                skill_info.id = skill_id
-                skill_info.name = skill_id
-                skill_info.level = 0
-                skill_info.max_level = skill.max_level
-                skill_info.element = self.get_element_info(skill.element)
-                skill_info.type = skill.type
-                skill_info.type_text = skill.type_text
-                skill_info.effect = skill.effect
-                skill_info.effect_text = skill.effect_text
-                skill_info.simple_desc = skill.simple_desc
-                skill_info.desc = ""
-                skill_info.icon = skill.icon
+                skill_info = SkillInfo(
+                    id=skill_id,
+                    name=skill_id,
+                    level=0,
+                    max_level=skill.max_level,
+                    element=self.get_element_info(skill.element),
+                    type=skill.type,
+                    type_text=skill.type_text,
+                    effect=skill.effect,
+                    effect_text=skill.effect_text,
+                    simple_desc=skill.simple_desc,
+                    desc="",
+                    icon=skill.icon,
+                )
                 skill_info_list.append(skill_info)
         return skill_info_list
 
@@ -216,11 +377,14 @@ class Index:
                 continue
             attributes.append(
                 AttributeInfo(
-                    k,
-                    property.name,
-                    property.icon,
-                    v.base + v.step * (level - 1),
-                    self.attribute_display_format(k, v.base + v.step * (level - 1)),
+                    field=k,
+                    name=property.name,
+                    icon=property.icon,
+                    value=v.base + v.step * (level - 1),
+                    display=self.value_display_format(
+                        v.base + v.step * (level - 1), property.percent
+                    ),
+                    percent=property.percent,
                 )
             )
         return attributes
@@ -248,11 +412,14 @@ class Index:
                 continue
             attributes.append(
                 AttributeInfo(
-                    k,
-                    property.name,
-                    property.icon,
-                    v.base + v.step * (level - 1),
-                    self.attribute_display_format(k, v.base + v.step * (level - 1)),
+                    field=k,
+                    name=property.name,
+                    icon=property.icon,
+                    value=v.base + v.step * (level - 1),
+                    display=self.value_display_format(
+                        v.base + v.step * (level - 1), property.percent
+                    ),
+                    percent=property.percent,
                 )
             )
         return attributes
@@ -300,6 +467,180 @@ class Index:
                     )
         return skill_upgrades
 
+    def get_character_property_from_skill_tree(
+        self, id: str, skill_tree_levels: List[LevelInfo]
+    ) -> List[PropertyInfo]:
+        """
+        Get character property from skill tree.
+        """
+        if id not in self.characters:
+            return []
+        skill_trees = self.characters[id].skill_trees
+        properties = []
+        for skill_tree in skill_tree_levels:
+            if (
+                skill_tree.id in skill_trees
+                and skill_tree.id in self.character_skill_trees
+            ):
+                property_list = (
+                    self.character_skill_trees[skill_tree.id]
+                    .levels[skill_tree.level - 1]
+                    .properties
+                )
+                for i in property_list:
+                    if i.type not in self.properties:
+                        continue
+                    property = self.properties[i.type]
+                    properties.append(
+                        PropertyInfo(
+                            type=i.type,
+                            field=property.field,
+                            name=property.name,
+                            icon=property.icon,
+                            value=i.value,
+                            display=self.value_display_format(
+                                i.value, property.percent
+                            ),
+                            percent=property.percent,
+                        )
+                    )
+        return properties
+
+    def get_light_cone_property_from_rank(
+        self, id: str, rank: int
+    ) -> List[PropertyInfo]:
+        """
+        Get light cone property from rank.
+        """
+        if id not in self.light_cone_ranks:
+            return []
+        if rank not in range(1, 5 + 1):  # 1-5
+            return []
+        properties = []
+        for i in self.light_cone_ranks[id].properties[rank - 1]:
+            if i.type not in self.properties:
+                continue
+            property = self.properties[i.type]
+            properties.append(
+                PropertyInfo(
+                    type=i.type,
+                    field=property.field,
+                    name=property.name,
+                    icon=property.icon,
+                    value=i.value,
+                    display=self.value_display_format(i.value, property.percent),
+                    percent=property.percent,
+                )
+            )
+        return properties
+
+    def get_relic_main_affix(
+        self, id: str, level: int, main_affix_id: Optional[str]
+    ) -> Optional[PropertyInfo]:
+        """
+        Get relic property from affix.
+        """
+        if id not in self.relics:
+            return None
+        if not main_affix_id:
+            return None
+        main_affix_group = self.relics[id].main_affix_id
+        if (
+            main_affix_group not in self.relic_main_affixes
+            or main_affix_id not in self.relic_main_affixes[main_affix_group].affixes
+        ):
+            return None
+        affix = self.relic_main_affixes[main_affix_group].affixes[main_affix_id]
+        main_affix_info = PropertyInfo(
+            type=affix.property,
+            field=self.properties[affix.property].field,
+            name=self.properties[affix.property].name,
+            icon=self.properties[affix.property].icon,
+            value=affix.base + affix.step * level,
+            display=self.value_display_format(
+                affix.base + affix.step * level,
+                self.properties[affix.property].percent,
+            ),
+            percent=self.properties[affix.property].percent,
+        )
+        return main_affix_info
+
+    def get_relic_sub_affix(
+        self, id: str, sub_affix_info: List[SubAffixInfo]
+    ) -> List[PropertyInfo]:
+        """
+        Get relic property from affix.
+        """
+        if id not in self.relics:
+            return []
+        sub_affix_group = self.relics[id].sub_affix_id
+        if sub_affix_group not in self.relic_sub_affixes:
+            return []
+        properties = []
+        for sub_affix in sub_affix_info:
+            if sub_affix.id not in self.relic_sub_affixes[sub_affix_group].affixes:
+                continue
+            affix = self.relic_sub_affixes[sub_affix_group].affixes[sub_affix.id]
+            properties.append(
+                PropertyInfo(
+                    type=affix.property,
+                    field=self.properties[affix.property].field,
+                    name=self.properties[affix.property].name,
+                    icon=self.properties[affix.property].icon,
+                    value=affix.base * sub_affix.cnt + affix.step * sub_affix.step,
+                    display=self.value_display_format(
+                        affix.base * sub_affix.cnt + affix.step * sub_affix.step,
+                        self.properties[affix.property].percent,
+                    ),
+                    percent=self.properties[affix.property].percent,
+                )
+            )
+        return properties
+
+    def calculate_additions(
+        self, attributes: List[AttributeInfo], properties: List[PropertyInfo]
+    ) -> List[AttributeInfo]:
+        """
+        Calculate additions from attributes and properties.
+        """
+        attribute_dict = {}
+        addition_dict = {}
+        for attribute in attributes:
+            if attribute.field not in addition_dict:
+                attribute_dict[attribute.field] = attribute.value
+        for property in properties:
+            if (
+                self.properties[property.type].ratio
+                and property.field in attribute_dict
+            ):
+                value = property.value * attribute_dict[property.field]
+            else:
+                value = property.value
+            if property.field not in addition_dict:
+                addition_dict[property.field] = value
+            else:
+                addition_dict[property.field] += value
+        additions = []
+        for k, v in addition_dict.items():
+            property = None
+            for i in self.properties.values():
+                if i.field == k:
+                    property = i
+                    break
+            if property is None:
+                continue
+            additions.append(
+                AttributeInfo(
+                    field=k,
+                    name=property.name,
+                    icon=property.icon,
+                    value=v,
+                    display=self.value_display_format(v, property.percent),
+                    percent=property.percent,
+                )
+            )
+        return additions
+
     def merge_character_skill_upgrade(
         self, skill_upgrades: List[List[LevelInfo]]
     ) -> List[LevelInfo]:
@@ -327,13 +668,16 @@ class Index:
                 if attribute.field not in attribute_dict:
                     attribute_dict[attribute.field] = {}
                     attribute_dict[attribute.field]["value"] = attribute.value
-                    attribute_dict[attribute.field]["origin"] = attribute
+                    attribute_dict[attribute.field]["origin"] = deepcopy(attribute)
                 else:
                     attribute_dict[attribute.field]["value"] += attribute.value
         attribute_res = []
         for v in attribute_dict.values():
-            attribute_info = v["origin"]
+            attribute_info: AttributeInfo = v["origin"]
             attribute_info.value = v["value"]
+            attribute_info.display = self.value_display_format(
+                v["value"], attribute_info.percent
+            )
             attribute_res.append(attribute_info)
         return attribute_res
 
@@ -343,16 +687,33 @@ class Index:
         """
         Merge properties.
         """
-        return []
+        property_dict = {}
+        for property_list in properties:
+            for property in property_list:
+                if property.type not in property_dict:
+                    property_dict[property.type] = {}
+                    property_dict[property.type]["value"] = property.value
+                    property_dict[property.type]["origin"] = deepcopy(property)
+                else:
+                    property_dict[property.type]["value"] += property.value
+        property_res = []
+        for v in property_dict.values():
+            property_info: PropertyInfo = v["origin"]
+            property_info.value = v["value"]
+            property_info.display = self.value_display_format(
+                v["value"], property_info.percent
+            )
+            property_res.append(property_info)
+        return property_res
 
-    def attribute_display_format(self, field: str, value: float) -> str:
+    def value_display_format(self, value: float, percent: bool) -> str:
         """
-        Attribute display format.
+        Value display format.
         """
-        if field in {"hp", "atk", "def", "spd"}:
-            return f"{math.floor(value)}"
+        if percent:
+            return format(math.floor(value * 1000) / 10.0, ".1f") + "%"
         else:
-            return f"{math.floor(value*100)}%"
+            return f"{math.floor(value)}"
 
     def format_template(self, template: str, params: List[float]) -> str:
         """
@@ -367,11 +728,9 @@ class Index:
                 template = template.replace(f"#{n}[i]", f"{math.floor(params[n-1])}")
             for f in range(1, 5):
                 if f"#{n}[f{f}]%" in template:
-                    template = template.replace(
-                        f"#{n}[f{f}]%", f"{format(params[n-1]*100), f'.{f}f'}%"
-                    )
+                    value = format(params[n - 1] * 100, f".{f}f")
+                    template = template.replace(f"#{n}[f{f}]%", f"{value}%")
                 if f"#{n}[f{f}]" in template:
-                    template = template.replace(
-                        f"#{n}[f{f}]", f"{format(params[n-1]), f'.{f}f'}"
-                    )
+                    value = format(params[n - 1], f".{f}f")
+                    template = template.replace(f"#{n}[f{f}]", f"{value}")
         return template

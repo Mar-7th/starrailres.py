@@ -11,6 +11,8 @@ class LightConeType(Struct):
     rarity: int
     path: str
     icon: str
+    preview: str
+    portrait: str
     guide_overview: List[str]
 
 
