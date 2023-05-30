@@ -61,6 +61,8 @@ class Index:
     properties: PropertyIndex
 
     def __init__(self, folder: Path) -> None:
+        if not folder.exists():
+            raise Exception("Please select an existing index folder!")
         self.characters = decode_json(folder / "characters.json", CharacterIndex)
         self.character_ranks = decode_json(
             folder / "character_ranks.json", CharacterRankIndex
