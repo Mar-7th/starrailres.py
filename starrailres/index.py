@@ -3,6 +3,7 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Dict, List, Optional
 
+from .models.avatars import AvatarIndex
 from .models.characters import (
     CharacterIndex,
     CharacterPromotionIndex,
@@ -13,6 +14,7 @@ from .models.characters import (
 from .models.elements import ElementIndex
 from .models.info import (
     AttributeInfo,
+    AvatarInfo,
     CharacterBasicInfo,
     CharacterInfo,
     ElementInfo,
@@ -59,6 +61,7 @@ class Index:
     paths: PathIndex
     elements: ElementIndex
     properties: PropertyIndex
+    avatars: AvatarIndex
 
     def __init__(self, folder: Path) -> None:
         if not folder.exists():
@@ -94,6 +97,19 @@ class Index:
         self.paths = decode_json(folder / "paths.json", PathIndex)
         self.elements = decode_json(folder / "elements.json", ElementIndex)
         self.properties = decode_json(folder / "properties.json", PropertyIndex)
+        self.avatars = decode_json(folder / "avatars.json", AvatarIndex)
+
+    def get_avatar_info(self, id: str) -> Optional[AvatarInfo]:
+        """
+        Get avatar info by avatar id.
+        """
+        if id not in self.avatars:
+            return None
+        return AvatarInfo(
+            id=id,
+            name=self.avatars[id].name,
+            icon=self.avatars[id].icon,
+        )
 
     def get_path_info(self, id: str) -> Optional[PathInfo]:
         """

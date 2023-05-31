@@ -1,8 +1,14 @@
 import json
 from pathlib import Path
 
-from starrailres import (CharacterBasicInfo, Index, LevelInfo,
-                         LightConeBasicInfo, RelicBasicInfo, SubAffixInfo)
+from starrailres import (
+    CharacterBasicInfo,
+    Index,
+    LevelInfo,
+    LightConeBasicInfo,
+    RelicBasicInfo,
+    SubAffixInfo,
+)
 
 # replace with index folder
 index = Index(Path("index") / "en")

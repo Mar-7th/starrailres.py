@@ -24,6 +24,12 @@ class LevelInfo(BaseInfo):
     level: int = 0
 
 
+class AvatarInfo(BaseInfo):
+    id: str
+    name: str
+    icon: str
+
+
 class PathInfo(BaseInfo):
     id: str
     name: str
