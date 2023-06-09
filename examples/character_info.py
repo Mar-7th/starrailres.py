@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 from starrailres import (
@@ -105,12 +104,15 @@ basic = CharacterBasicInfo(
 
 character = index.get_character_info(basic)
 
-# msgspec method to export json
+# export json
 if character:
     from msgspec.json import encode
 
     print(encode(character).decode())
 
-# convert to dict and json
+
+# # export dict
 # if character:
-#     print(json.dumps(character.to_dict(), ensure_ascii=False, indent=4))
+#     from msgspec import to_builtins
+
+#     print(to_builtins(character))

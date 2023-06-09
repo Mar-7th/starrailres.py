@@ -145,6 +145,9 @@ class Index:
             icon=self.characters[basic.id].icon,
             preview=self.characters[basic.id].preview,
             portrait=self.characters[basic.id].portrait,
+            rank_icons=[
+                self.character_ranks[i].icon for i in self.characters[basic.id].ranks
+            ],
             path=self.get_path_info(self.characters[basic.id].path),
             element=self.get_element_info(self.characters[basic.id].element),
             skills=self.get_character_skill_info(
@@ -274,6 +277,8 @@ class Index:
                     RelicSetInfo(
                         id=k,
                         name=self.relic_sets[k].name,
+                        icon=self.relic_sets[k].icon,
+                        num=2,
                         desc=self.relic_sets[k].desc[0],
                         properties=[
                             PropertyInfo(
@@ -297,6 +302,8 @@ class Index:
                     RelicSetInfo(
                         id=k,
                         name=self.relic_sets[k].name,
+                        icon=self.relic_sets[k].icon,
+                        num=4,
                         desc=self.relic_sets[k].desc[0],
                         properties=[
                             PropertyInfo(

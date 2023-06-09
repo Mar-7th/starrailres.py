@@ -3,47 +3,31 @@ from typing import List, Optional
 from msgspec import Struct
 
 
-class BaseInfo(Struct):
-    def to_dict(self):
-        result = {}
-        for field in self.__struct_fields__:
-            value = getattr(self, field)
-            if isinstance(value, BaseInfo):
-                result[field] = value.to_dict()
-            elif isinstance(value, list) and all(
-                isinstance(i, BaseInfo) for i in value
-            ):
-                result[field] = [i.to_dict() for i in value]
-            else:
-                result[field] = value
-        return result
-
-
-class LevelInfo(BaseInfo):
+class LevelInfo(Struct):
     id: str
     level: int = 0
 
 
-class AvatarInfo(BaseInfo):
+class AvatarInfo(Struct):
     id: str
     name: str
     icon: str
 
 
-class PathInfo(BaseInfo):
+class PathInfo(Struct):
     id: str
     name: str
     icon: str
 
 
-class ElementInfo(BaseInfo):
+class ElementInfo(Struct):
     id: str
     name: str
     color: str
     icon: str
 
 
-class SkillInfo(BaseInfo):
+class SkillInfo(Struct):
     id: str
     name: str
     level: int
@@ -58,7 +42,7 @@ class SkillInfo(BaseInfo):
     icon: str
 
 
-class PropertyInfo(BaseInfo):
+class PropertyInfo(Struct):
     type: str
     field: str
     name: str
@@ -68,7 +52,7 @@ class PropertyInfo(BaseInfo):
     percent: bool
 
 
-class AttributeInfo(BaseInfo):
+class AttributeInfo(Struct):
     field: str
     name: str
     icon: str
@@ -77,27 +61,27 @@ class AttributeInfo(BaseInfo):
     percent: bool
 
 
-class SubAffixInfo(BaseInfo):
+class SubAffixInfo(Struct):
     id: str
     cnt: int
     step: int = 0
 
 
-class RelicBasicInfo(BaseInfo):
+class RelicBasicInfo(Struct):
     id: str
     level: int = 1
     main_affix_id: Optional[str] = None
     sub_affix_info: List[SubAffixInfo] = []
 
 
-class LightConeBasicInfo(BaseInfo):
+class LightConeBasicInfo(Struct):
     id: str
     rank: int = 1
     level: int = 1
     promotion: int = 0
 
 
-class CharacterBasicInfo(BaseInfo):
+class CharacterBasicInfo(Struct):
     id: str
     rank: int = 0
     level: int = 1
@@ -107,7 +91,7 @@ class CharacterBasicInfo(BaseInfo):
     relics: Optional[List[RelicBasicInfo]] = None
 
 
-class RelicInfo(BaseInfo):
+class RelicInfo(Struct):
     id: str
     name: str
     set_id: str
@@ -119,14 +103,16 @@ class RelicInfo(BaseInfo):
     sub_affix: List[PropertyInfo] = []
 
 
-class RelicSetInfo(BaseInfo):
+class RelicSetInfo(Struct):
     id: str
     name: str
+    icon: str
+    num: int
     desc: str = ""
     properties: List[PropertyInfo] = []
 
 
-class LightConeInfo(BaseInfo):
+class LightConeInfo(Struct):
     id: str
     name: str
     rarity: int
@@ -141,7 +127,7 @@ class LightConeInfo(BaseInfo):
     properties: List[PropertyInfo] = []
 
 
-class CharacterInfo(BaseInfo):
+class CharacterInfo(Struct):
     id: str
     name: str
     rarity: int
@@ -151,6 +137,7 @@ class CharacterInfo(BaseInfo):
     icon: str
     preview: str
     portrait: str
+    rank_icons: List[str] = []
     path: Optional[PathInfo] = None
     element: Optional[ElementInfo] = None
     skills: List[SkillInfo] = []
