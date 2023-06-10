@@ -66,6 +66,7 @@ class CharacterSkillTreeType(Struct):
     pre_points: List[str]
     level_up_skills: List[Quantity]
     levels: List[SkillTreeLevelType]
+    icon: str
 
 
 class CharacterPromotionType(Struct):

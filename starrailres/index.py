@@ -27,6 +27,7 @@ from .models.info import (
     RelicInfo,
     RelicSetInfo,
     SkillInfo,
+    SkillTreeInfo,
     SubAffixInfo,
 )
 from .models.light_cones import (
@@ -163,6 +164,14 @@ class Index:
                     ]
                 ),
             ),
+            skill_trees=[
+                SkillTreeInfo(
+                    id=i.id,
+                    level=i.level,
+                    icon=self.character_skill_trees[i.id].icon,
+                )
+                for i in basic.skill_tree_levels
+            ],
             light_cone=None,
             relics=[],
             relic_sets=[],

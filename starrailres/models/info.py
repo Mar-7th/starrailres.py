@@ -42,6 +42,12 @@ class SkillInfo(Struct):
     icon: str
 
 
+class SkillTreeInfo(Struct):
+    id: str
+    level: int
+    icon: str
+
+
 class PropertyInfo(Struct):
     type: str
     field: str
@@ -141,6 +147,7 @@ class CharacterInfo(Struct):
     path: Optional[PathInfo] = None
     element: Optional[ElementInfo] = None
     skills: List[SkillInfo] = []
+    skill_trees: List[SkillTreeInfo] = []
     light_cone: Optional[LightConeInfo] = None
     relics: List[RelicInfo] = []
     relic_sets: List[RelicSetInfo] = []
