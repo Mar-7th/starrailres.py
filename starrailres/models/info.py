@@ -48,6 +48,15 @@ class SkillTreeInfo(Struct):
     icon: str
 
 
+class AttributeInfo(Struct):
+    field: str
+    name: str
+    icon: str
+    value: float
+    display: str
+    percent: bool
+
+
 class PropertyInfo(Struct):
     type: str
     field: str
@@ -58,16 +67,12 @@ class PropertyInfo(Struct):
     percent: bool
 
 
-class AttributeInfo(Struct):
-    field: str
-    name: str
-    icon: str
-    value: float
-    display: str
-    percent: bool
+class SubAffixInfo(PropertyInfo):
+    count: int
+    step: int
 
 
-class SubAffixInfo(Struct):
+class SubAffixBasicInfo(Struct):
     id: str
     cnt: int
     step: int = 0
@@ -77,7 +82,7 @@ class RelicBasicInfo(Struct):
     id: str
     level: int = 1
     main_affix_id: Optional[str] = None
-    sub_affix_info: List[SubAffixInfo] = []
+    sub_affix_info: List[SubAffixBasicInfo] = []
 
 
 class LightConeBasicInfo(Struct):
@@ -106,7 +111,7 @@ class RelicInfo(Struct):
     level: int
     icon: str
     main_affix: Optional[PropertyInfo] = None
-    sub_affix: List[PropertyInfo] = []
+    sub_affix: List[SubAffixInfo] = []
 
 
 class RelicSetInfo(Struct):

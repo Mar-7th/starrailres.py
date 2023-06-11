@@ -29,6 +29,7 @@ from .models.info import (
     SkillInfo,
     SkillTreeInfo,
     SubAffixInfo,
+    SubAffixBasicInfo,
 )
 from .models.light_cones import (
     LightConeIndex,
@@ -600,8 +601,8 @@ class Index:
         return main_affix_info
 
     def get_relic_sub_affix(
-        self, id: str, sub_affix_info: List[SubAffixInfo]
-    ) -> List[PropertyInfo]:
+        self, id: str, sub_affix_info: List[SubAffixBasicInfo]
+    ) -> List[SubAffixInfo]:
         """
         Get relic property from affix.
         """
@@ -616,7 +617,7 @@ class Index:
                 continue
             affix = self.relic_sub_affixes[sub_affix_group].affixes[sub_affix.id]
             properties.append(
-                PropertyInfo(
+                SubAffixInfo(
                     type=affix.property,
                     field=self.properties[affix.property].field,
                     name=self.properties[affix.property].name,
@@ -627,6 +628,8 @@ class Index:
                         self.properties[affix.property].percent,
                     ),
                     percent=self.properties[affix.property].percent,
+                    count=sub_affix.cnt,
+                    step=sub_affix.step,
                 )
             )
         return properties

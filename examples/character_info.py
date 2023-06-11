@@ -6,7 +6,7 @@ from starrailres import (
     LevelInfo,
     LightConeBasicInfo,
     RelicBasicInfo,
-    SubAffixInfo,
+    SubAffixBasicInfo,
 )
 
 # replace with index folder
@@ -19,10 +19,10 @@ basic_relics = [
         level=12,
         main_affix_id="1",
         sub_affix_info=[
-            SubAffixInfo(id="2", cnt=3, step=1),
-            SubAffixInfo(id="3", cnt=1, step=0),
-            SubAffixInfo(id="6", cnt=3, step=3),
-            SubAffixInfo(id="9", cnt=1, step=2),
+            SubAffixBasicInfo(id="2", cnt=3, step=1),
+            SubAffixBasicInfo(id="3", cnt=1, step=0),
+            SubAffixBasicInfo(id="6", cnt=3, step=3),
+            SubAffixBasicInfo(id="9", cnt=1, step=2),
         ],
     ),
     RelicBasicInfo(
@@ -30,10 +30,10 @@ basic_relics = [
         level=13,
         main_affix_id="1",
         sub_affix_info=[
-            SubAffixInfo(id="5", cnt=2, step=4),
-            SubAffixInfo(id="6", cnt=1, step=1),
-            SubAffixInfo(id="7", cnt=1, step=2),
-            SubAffixInfo(id="10", cnt=3, step=2),
+            SubAffixBasicInfo(id="5", cnt=2, step=4),
+            SubAffixBasicInfo(id="6", cnt=1, step=1),
+            SubAffixBasicInfo(id="7", cnt=1, step=2),
+            SubAffixBasicInfo(id="10", cnt=3, step=2),
         ],
     ),
     RelicBasicInfo(
@@ -41,10 +41,10 @@ basic_relics = [
         level=15,
         main_affix_id="4",
         sub_affix_info=[
-            SubAffixInfo(id="3", cnt=3, step=4),
-            SubAffixInfo(id="4", cnt=1, step=1),
-            SubAffixInfo(id="10", cnt=3, step=2),
-            SubAffixInfo(id="12", cnt=1, step=0),
+            SubAffixBasicInfo(id="3", cnt=3, step=4),
+            SubAffixBasicInfo(id="4", cnt=1, step=1),
+            SubAffixBasicInfo(id="10", cnt=3, step=2),
+            SubAffixBasicInfo(id="12", cnt=1, step=0),
         ],
     ),
     RelicBasicInfo(
@@ -52,10 +52,10 @@ basic_relics = [
         level=12,
         main_affix_id="4",
         sub_affix_info=[
-            SubAffixInfo(id="2", cnt=2, step=4),
-            SubAffixInfo(id="3", cnt=3, step=5),
-            SubAffixInfo(id="9", cnt=1),
-            SubAffixInfo(id="10", cnt=1, step=2),
+            SubAffixBasicInfo(id="2", cnt=2, step=4),
+            SubAffixBasicInfo(id="3", cnt=3, step=5),
+            SubAffixBasicInfo(id="9", cnt=1),
+            SubAffixBasicInfo(id="10", cnt=1, step=2),
         ],
     ),
     RelicBasicInfo(
@@ -63,10 +63,10 @@ basic_relics = [
         level=15,
         main_affix_id="9",
         sub_affix_info=[
-            SubAffixInfo(id="2", cnt=2, step=1),
-            SubAffixInfo(id="5", cnt=2, step=1),
-            SubAffixInfo(id="6", cnt=3, step=2),
-            SubAffixInfo(id="10", cnt=2),
+            SubAffixBasicInfo(id="2", cnt=2, step=1),
+            SubAffixBasicInfo(id="5", cnt=2, step=1),
+            SubAffixBasicInfo(id="6", cnt=3, step=2),
+            SubAffixBasicInfo(id="10", cnt=2),
         ],
     ),
     RelicBasicInfo(
@@ -74,10 +74,10 @@ basic_relics = [
         level=12,
         main_affix_id="4",
         sub_affix_info=[
-            SubAffixInfo(id="1", cnt=1, step=1),
-            SubAffixInfo(id="2", cnt=2, step=2),
-            SubAffixInfo(id="8", cnt=3, step=2),
-            SubAffixInfo(id="10", cnt=2, step=2),
+            SubAffixBasicInfo(id="1", cnt=1, step=1),
+            SubAffixBasicInfo(id="2", cnt=2, step=2),
+            SubAffixBasicInfo(id="8", cnt=3, step=2),
+            SubAffixBasicInfo(id="10", cnt=2, step=2),
         ],
     ),
 ]
