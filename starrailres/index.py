@@ -314,7 +314,9 @@ class Index:
                         name=self.relic_sets[k].name,
                         icon=self.relic_sets[k].icon,
                         num=4,
-                        desc=self.relic_sets[k].desc[0],
+                        desc=self.relic_sets[k].desc[1]
+                        if len(self.relic_sets[k].desc) > 1
+                        else "",
                         properties=[
                             PropertyInfo(
                                 type=i.type,
@@ -328,7 +330,11 @@ class Index:
                                 ),
                                 percent=self.properties[i.type].percent,
                             )
-                            for i in self.relic_sets[k].properties[1]
+                            for i in (
+                                self.relic_sets[k].properties[1]
+                                if len(self.relic_sets[k].properties) > 1
+                                else []
+                            )
                         ],
                     )
                 )
