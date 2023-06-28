@@ -355,6 +355,7 @@ class Index:
             if skill_level.id not in self.character_skills:
                 continue
             skill = self.character_skills[skill_level.id]
+            params = skill.params[skill_level.level - 1] if skill.params else []
             skill_info = SkillInfo(
                 id=skill_level.id,
                 name=skill.name,
@@ -366,9 +367,7 @@ class Index:
                 effect=skill.effect,
                 effect_text=skill.effect_text,
                 simple_desc=skill.simple_desc,
-                desc=self.format_template(
-                    skill.desc, skill.params[skill_level.level - 1]
-                ),
+                desc=self.format_template(skill.desc, params),
                 icon=skill.icon,
             )
             skill_info_dict[skill_level.id] = skill_info
@@ -763,6 +762,8 @@ class Index:
         Format string template with params.
         """
         for n in range(1, 11):
+            if len(params) < n:
+                break
             if f"#{n}[i]%" in template:
                 template = template.replace(
                     f"#{n}[i]%", f"{math.floor(params[n-1]*100)}%"
