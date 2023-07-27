@@ -165,14 +165,9 @@ class Index:
                     ]
                 ),
             ),
-            skill_trees=[
-                SkillTreeInfo(
-                    id=i.id,
-                    level=i.level,
-                    icon=self.character_skill_trees[i.id].icon,
-                )
-                for i in basic.skill_tree_levels
-            ],
+            skill_trees=self.get_character_skill_tree_info(
+                basic.id, basic.skill_tree_levels
+            ),
             light_cone=None,
             relics=[],
             relic_sets=[],
@@ -393,6 +388,38 @@ class Index:
                 )
                 skill_info_list.append(skill_info)
         return skill_info_list
+
+    def get_character_skill_tree_info(
+        self, id: str, skill_tree_levels: List[LevelInfo]
+    ) -> List[SkillTreeInfo]:
+        """
+        Get character skill tree info by character id and skill tree levels.
+        """
+        if id not in self.characters:
+            return []
+        skill_tree_dict: Dict[str, int] = {}
+        for skill_tree in skill_tree_levels:
+            if skill_tree.id not in self.character_skill_trees:
+                continue
+            skill_tree_dict[skill_tree.id] = skill_tree.level
+        skill_tree_info_list = []
+        for skill_tree_id in self.characters[id].skill_trees:
+            if skill_tree_id not in self.character_skill_trees:
+                return []
+            parsed_info = SkillTreeInfo(
+                id=skill_tree_id,
+                level=skill_tree_dict[skill_tree_id]
+                if skill_tree_id in skill_tree_dict
+                else 0,
+                max_level=self.character_skill_trees[skill_tree_id].max_level,
+                anchor=self.character_skill_trees[skill_tree_id].anchor,
+                icon=self.character_skill_trees[skill_tree_id].icon,
+                parent=self.character_skill_trees[skill_tree_id].pre_points[0]
+                if self.character_skill_trees[skill_tree_id].pre_points
+                else None,
+            )
+            skill_tree_info_list.append(parsed_info)
+        return skill_tree_info_list
 
     def get_character_attribute_from_promotion(
         self, id: str, promotion: int, level: int
