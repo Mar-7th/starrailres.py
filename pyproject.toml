@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "starrailres"
-version = "1.2.0"
-description = "StarRailRes index package."
+version = "1.3.0"
+description = "StarRailRes parse package"
 authors = ["mobyw <mobyw66@gmail.com>"]
 license = "MIT"
 packages = [{ include = 'starrailres' }]
