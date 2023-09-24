@@ -165,8 +165,9 @@ class Index:
                     ]
                 ),
             ),
-            skill_trees=self.get_character_skill_tree_info(
-                basic.id, basic.skill_tree_levels
+            skill_trees=self.fix_skill_tree_max_level(
+                self.get_character_skill_tree_info(basic.id, basic.skill_tree_levels),
+                self.get_character_skill_upgrade_from_rank(basic.id, basic.rank),
             ),
             light_cone=None,
             relics=[],
@@ -210,7 +211,18 @@ class Index:
         for relic in info.relics:
             if relic.main_affix:
                 relic_properties.append(relic.main_affix)
-            relic_properties += relic.sub_affix
+            relic_properties += [
+                PropertyInfo(
+                    type=affix.type,
+                    field=affix.field,
+                    name=affix.name,
+                    icon=affix.icon,
+                    value=affix.value,
+                    display=affix.display,
+                    percent=affix.percent,
+                )
+                for affix in relic.sub_affix
+            ]
         for relic_set in info.relic_sets:
             relic_properties += relic_set.properties
         info.properties = self.merge_property(
@@ -665,6 +677,22 @@ class Index:
                 )
             )
         return properties
+
+    def fix_skill_tree_max_level(
+        self, skill_tree: List[SkillTreeInfo], upgrade_list: List[LevelInfo]
+    ) -> List[SkillTreeInfo]:
+        """
+        Fix skill tree max level
+        """
+        skill_tree_fixed: List[SkillTreeInfo] = []
+        upgrade_dict = {v.id: v.level for v in upgrade_list}
+        for item in skill_tree:
+            if item.id in self.character_skill_trees:
+                skill_up_list = self.character_skill_trees[item.id].level_up_skills
+                if skill_up_list and skill_up_list[0].id in upgrade_dict:
+                    item.max_level += upgrade_dict[skill_up_list[0].id]
+                skill_tree_fixed.append(item)
+        return skill_tree_fixed
 
     def calculate_additions(
         self, attributes: List[AttributeInfo], properties: List[PropertyInfo]
