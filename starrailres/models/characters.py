@@ -24,9 +24,8 @@ class CharacterType(Struct):
     icon: str
     preview: str
     portrait: str
-    guide_overview: List[str]
-    guide_material: List[str]
-    guide_evaluation: List[CharacterEvaluationType]
+    guide_overview: List[str] = []
+    guide_material: List[str] = []
 
 
 class CharacterRankType(Struct):
