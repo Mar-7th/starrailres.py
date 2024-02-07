@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "starrailres"
-version = "1.3.2"
+version = "2.0.0"
 description = "StarRailRes parse package"
 authors = ["mobyw <mobyw66@gmail.com>"]
 license = "MIT"
