@@ -162,3 +162,4 @@ class CharacterInfo(Struct):
     attributes: List[AttributeInfo] = []
     additions: List[AttributeInfo] = []
     properties: List[PropertyInfo] = []
+    pos: List[int] = []
