@@ -1,12 +1,12 @@
 [tool.poetry]
 name = "starrailres"
-version = "2.0.0"
+version = "2.1.0"
 description = "StarRailRes parse package"
 authors = ["mobyw <mobyw66@gmail.com>"]
 license = "MIT"
 packages = [{ include = 'starrailres' }]
 readme = "README.md"
-repository = "https://github.com/Mar-7th/StarRailRes-Python"
+repository = "https://github.com/Mar-7th/starrailres.py"
 
 [tool.poetry.dependencies]
 python = "^3.8"
