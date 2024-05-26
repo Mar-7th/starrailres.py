@@ -47,6 +47,16 @@ from .models.relics import (
 from .utils import decode_json
 
 
+relic_type_map: Dict[str, int] = {
+    "HEAD": 1,
+    "HAND": 2,
+    "BODY": 3,
+    "FOOT": 4,
+    "NECK": 5,
+    "OBJECT": 6,
+}
+
+
 class Index:
     characters: CharacterIndex
     character_ranks: CharacterRankIndex
@@ -268,6 +278,7 @@ class Index:
         info = RelicInfo(
             id=basic.id,
             name=self.relics[basic.id].name,
+            type=relic_type_map.get(self.relics[basic.id].type, 0),
             set_id=self.relics[basic.id].set_id,
             set_name=self.relic_sets[self.relics[basic.id].set_id].name,
             rarity=self.relics[basic.id].rarity,
@@ -321,9 +332,11 @@ class Index:
                         name=self.relic_sets[k].name,
                         icon=self.relic_sets[k].icon,
                         num=4,
-                        desc=self.relic_sets[k].desc[1]
-                        if len(self.relic_sets[k].desc) > 1
-                        else "",
+                        desc=(
+                            self.relic_sets[k].desc[1]
+                            if len(self.relic_sets[k].desc) > 1
+                            else ""
+                        ),
                         properties=[
                             PropertyInfo(
                                 type=i.type,
@@ -420,15 +433,19 @@ class Index:
                 return []
             parsed_info = SkillTreeInfo(
                 id=skill_tree_id,
-                level=skill_tree_dict[skill_tree_id]
-                if skill_tree_id in skill_tree_dict
-                else 0,
+                level=(
+                    skill_tree_dict[skill_tree_id]
+                    if skill_tree_id in skill_tree_dict
+                    else 0
+                ),
                 max_level=self.character_skill_trees[skill_tree_id].max_level,
                 anchor=self.character_skill_trees[skill_tree_id].anchor,
                 icon=self.character_skill_trees[skill_tree_id].icon,
-                parent=self.character_skill_trees[skill_tree_id].pre_points[0]
-                if self.character_skill_trees[skill_tree_id].pre_points
-                else None,
+                parent=(
+                    self.character_skill_trees[skill_tree_id].pre_points[0]
+                    if self.character_skill_trees[skill_tree_id].pre_points
+                    else None
+                ),
             )
             skill_tree_info_list.append(parsed_info)
         return skill_tree_info_list

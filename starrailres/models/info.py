@@ -108,6 +108,7 @@ class CharacterBasicInfo(Struct):
 class RelicInfo(Struct):
     id: str
     name: str
+    type: int
     set_id: str
     set_name: str
     rarity: int
