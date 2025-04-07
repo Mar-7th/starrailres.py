@@ -13,7 +13,6 @@ class LightConeType(Struct):
     icon: str
     preview: str
     portrait: str
-    guide_overview: List[str] = []
 
 
 class LightConeRankType(Struct):

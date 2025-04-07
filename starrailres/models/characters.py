@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from msgspec import Struct
 
@@ -17,15 +17,13 @@ class CharacterType(Struct):
     rarity: int
     path: str
     element: str
-    max_sp: float
+    max_sp: Optional[int]
     ranks: List[str]
     skills: List[str]
     skill_trees: List[str]
     icon: str
     preview: str
     portrait: str
-    guide_overview: List[str] = []
-    guide_material: List[str] = []
 
 
 class CharacterRankType(Struct):

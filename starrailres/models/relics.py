@@ -23,7 +23,6 @@ class RelicSetType(Struct):
     properties: List[List[Property]]
     desc: List[str]
     icon: str
-    guide_overview: List[str]
 
 
 class AffixType(Struct):

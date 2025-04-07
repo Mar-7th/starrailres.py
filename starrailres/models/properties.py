@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 
 from msgspec import Struct
 
@@ -11,7 +11,7 @@ class PropertyType(Struct):
     ratio: bool  # is added ratio
     percent: bool  # is percent
     order: int  # property order
-    icon: str  # property icon path
+    icon: Optional[str]  # property icon path
 
 
 PropertyIndex = Dict[str, PropertyType]
