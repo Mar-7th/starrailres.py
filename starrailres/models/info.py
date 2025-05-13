@@ -54,7 +54,7 @@ class SkillTreeInfo(Struct):
 class AttributeInfo(Struct):
     field: str
     name: str
-    icon: str
+    icon: Optional[str]
     value: float
     display: str
     percent: bool
@@ -64,7 +64,7 @@ class PropertyInfo(Struct):
     type: str
     field: str
     name: str
-    icon: str
+    icon: Optional[str]
     value: float
     display: str
     percent: bool
