@@ -238,7 +238,16 @@ class Index:
         info.properties = self.merge_property(
             [
                 info.properties,
-                info.light_cone.properties if info.light_cone else [],
+                (
+                    info.light_cone.properties
+                    if (
+                        info.path
+                        and info.light_cone
+                        and info.light_cone.path
+                        and info.light_cone.path.id == info.path.id
+                    )
+                    else []
+                ),
                 relic_properties,
             ]
         )
