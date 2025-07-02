@@ -448,7 +448,6 @@ class Index:
                     else 0
                 ),
                 max_level=self.character_skill_trees[skill_tree_id].max_level,
-                anchor=self.character_skill_trees[skill_tree_id].anchor,
                 icon=self.character_skill_trees[skill_tree_id].icon,
                 parent=(
                     self.character_skill_trees[skill_tree_id].pre_points[0]

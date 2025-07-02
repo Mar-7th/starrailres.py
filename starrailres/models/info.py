@@ -39,13 +39,12 @@ class SkillInfo(Struct):
     effect_text: str
     simple_desc: str
     desc: str
-    icon: str
+    icon: Optional[str]
 
 
 class SkillTreeInfo(Struct):
     id: str
     level: int
-    anchor: str
     max_level: int
     icon: str
     parent: Optional[str] = None
