@@ -59,6 +59,7 @@ class SkillTreeLevelType(Struct):
 class CharacterSkillTreeType(Struct):
     id: str
     max_level: int
+    anchor: str
     pre_points: List[str]
     level_up_skills: List[Quantity]
     levels: List[SkillTreeLevelType]

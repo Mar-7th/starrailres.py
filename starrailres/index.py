@@ -447,6 +447,7 @@ class Index:
                     if skill_tree_id in skill_tree_dict
                     else 0
                 ),
+                anchor=self.character_skill_trees[skill_tree_id].anchor,
                 max_level=self.character_skill_trees[skill_tree_id].max_level,
                 icon=self.character_skill_trees[skill_tree_id].icon,
                 parent=(

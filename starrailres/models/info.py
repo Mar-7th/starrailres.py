@@ -45,6 +45,7 @@ class SkillInfo(Struct):
 class SkillTreeInfo(Struct):
     id: str
     level: int
+    anchor: str
     max_level: int
     icon: str
     parent: Optional[str] = None
